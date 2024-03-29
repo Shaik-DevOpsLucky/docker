@@ -1,0 +1,80 @@
+PROCESS: 
+CODE -- > BUILD (DOCKER FILE) -- > IMAGE -- > CONTAINER -- > APP
+http://3.7.248.36:81/
+
+vim Dockerfile
+
+FROM ubuntu
+RUN apt update -y
+RUN apt install apache2 -y
+COPY index.html /var/www/html
+CMD ["/usr/sbin/apachectl", "-D", "FOREGROUND"]
+
+create index.html
+
+docker build -t movies:v1 .
+docker run -itd --name movies -p 81:80 movies:v1
+public-ip:81 
+
+Note: we cant chnage port 80 (its default apache port)
+
+2. CHNAGE INDEX.HTML (MOVIES=TRAIN)
+
+docker build -t train:v1 .
+docker run -itd --name train -p 82:80 train:v1
+public-ip:82
+
+3. CHNAGE INDEX.HTML (TRAIN=DTH)
+
+docker build -t dth:v1 .
+docker run -itd --name dth -p 83:80 dth:v1
+public-ip:83
+
+4. CHNAGE INDEX.HTML (DTH=RECHARGE)
+
+docker build -t recharge:v1 .
+docker run -itd --name recharge -p 84:80 recharge:v1
+public-ip:84
+
+
+
+DOCKER COMPOSE:
+its a tool used to launch multiple conatiners.
+we can create multiple conatiners on single hosts.
+all of the services informatiom we are going to write on a file.
+here we use docker-compose/compose file.
+it will be on yaml format.
+we use key-value pair (dictionary) (.yml or .yaml)
+used to manage multiple servivces with help of a file.
+
+
+SETUP:
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+ls /usr/local/bin/
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose version
+
+
+vim docker-compose.yml
+
+version: '3.8'
+services:
+  movies:
+    image: movies:v1
+    ports:
+      - "81:80"
+  train:
+    image: train:v1
+    ports:
+      - "82:80"
+  dth:
+    image: dth:v1
+    ports:
+      - "83:80"
+  recharge:
+    image: recharge:v1
+    ports:
+      - "84:80"
+
+Note: remove all the conatiners
